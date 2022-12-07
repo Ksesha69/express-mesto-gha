@@ -61,7 +61,7 @@ module.exports.likeCard = (req, res) => {
       else res.status(ERROR_404).send({ message: MESSAGE_404 });
     })
     .catch((err) => {
-      if (err.name !== 'CastError') {
+      if (err.name === 'CastError') {
         res.status(ERROR_400).send({ message: MESSAGE_400 });
       } else {
         res.status(ERROR_500).send({ message: MESSAGE_500 });
@@ -81,7 +81,7 @@ module.exports.dislikeCard = (req, res) => {
       else res.status(ERROR_404).send({ message: MESSAGE_404 });
     })
     .catch((err) => {
-      if (err.name !== 'CastError') {
+      if (err.name === 'CastError') {
         res.status(ERROR_400).send({ message: MESSAGE_400 });
       } else {
         res.status(ERROR_500).send({ message: MESSAGE_500 });
