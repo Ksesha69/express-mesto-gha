@@ -34,7 +34,7 @@ module.exports.deleteCard = (req, res) => {
     })
     .catch((e) => {
       console.log(e);
-      return res.status(404).json({ message: 'Карточка с указанным _id не найдена.' });
+      return res.status(400).json({ message: 'Карточка с указанным _id не найдена.' });
     });
 };
 
@@ -46,11 +46,11 @@ module.exports.likeCard = (req, res) => {
   )
     .then((card) => {
       if (card) res.send(card);
-      else res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятия лайка' });
+      else res.status(404).send({ message: 'Переданы некорректные данные для постановки/снятия лайка' });
     })
     .catch((err) => {
       if (err.name !== 'SomeErrorName') {
-        res.status(404).send({ message: 'Передан несуществующий _id карточки' });
+        res.status(400).send({ message: 'Передан несуществующий _id карточки' });
       } else {
         res.status(500).send({ message: 'Ошибка по умолчанию' });
       }
@@ -65,11 +65,11 @@ module.exports.dislikeCard = (req, res) => {
   )
     .then((card) => {
       if (card) res.send(card);
-      else res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятия лайка' });
+      else res.status(404).send({ message: 'Переданы некорректные данные для постановки/снятия лайка' });
     })
     .catch((err) => {
       if (err.name !== 'SomeErrorName') {
-        res.status(404).send({ message: 'Передан несуществующий _id карточки' });
+        res.status(400).send({ message: 'Передан несуществующий _id карточки' });
       } else {
         res.status(500).send({ message: 'Ошибка по умолчанию' });
       }
