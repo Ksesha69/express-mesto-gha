@@ -17,12 +17,9 @@ module.exports.getUsersId = (req, res) => {
       if (user) res.send({ data: user });
       else res.status(404).send({ message: 'Пользователь не найден' });
     })
-    .catch((err) => {
-      if (err.name !== 'SomeErrorName') {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
-      } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
-      }
+    .catch((e) => {
+      console.log(e);
+      return res.status(500).json({ message: 'Ошибка по умолчанию' });
     });
 };
 
@@ -47,16 +44,17 @@ module.exports.changeUser = (req, res) => {
   User.findByIdAndUpdate(
     req.user._id,
     { name, about },
+    { new: true, runValidators: true },
   )
     .then((user) => {
       if (user) res.send({ name, about });
       else {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+        res.status(404).send({ message: 'Пользователь не найден' });
       }
     })
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
-        res.status(404).send({ message: 'Пользователь не найден' });
+      if ((err.name !== 'SomeErrorName') || (err.name !== 'CastError')) {
+        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
       } else {
         res.status(500).send({ message: 'Ошибка по умолчанию' });
       }

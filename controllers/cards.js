@@ -29,8 +29,9 @@ module.exports.createCard = (req, res) => {
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndDelete({ _id: req.params.cardId })
-    .then(() => {
-      res.send({ message: 'Карточка удалена' });
+    .then((card) => {
+      if (card) res.send({ message: 'Карточка удалена' });
+      else res.status(404).send({ message: 'Карточка с указанным _id не найдена в БД' });
     })
     .catch((e) => {
       console.log(e);
