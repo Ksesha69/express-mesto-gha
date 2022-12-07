@@ -17,9 +17,12 @@ module.exports.getUsersId = (req, res) => {
       if (user) res.send({ data: user });
       else res.status(404).send({ message: 'Пользователь не найден' });
     })
-    .catch((e) => {
-      console.log(e);
-      return res.status(500).json({ message: 'Ошибка по умолчанию' });
+    .catch((err) => {
+      if (err.name !== 'SomeErrorName') {
+        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
+      } else {
+        res.status(500).send({ message: 'Ошибка по умолчанию' });
+      }
     });
 };
 
@@ -80,4 +83,8 @@ module.exports.changeAvatar = (req, res) => {
         res.status(500).send({ message: 'Ошибка по умолчанию' });
       }
     });
+};
+
+module.exports.notFound = (req, res) => {
+  res.status(404).send({ message: 'Not found' });
 };

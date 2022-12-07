@@ -20,6 +20,11 @@ app.use((req, res, next) => {
 app.use('/users', routerUser);
 app.use('/cards', routerCards);
 
+app.use('*', (req, res, next) => {
+  res.status(404).send({ message: 'Страница не найдена' });
+  next();
+});
+
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
