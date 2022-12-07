@@ -1,5 +1,14 @@
 const User = require('../models/user');
 
+const {
+  ERROR_500,
+  ERROR_404,
+  ERROR_400,
+  MESSAGE_500,
+  MESSAGE_404,
+  MESSAGE_400,
+} = require('../errors/errors');
+
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => {
@@ -7,7 +16,7 @@ module.exports.getUsers = (req, res) => {
     })
     .catch((e) => {
       console.log(e);
-      return res.status(500).json({ message: 'Произошла ошибка' });
+      return res.status(ERROR_500).json({ message: MESSAGE_500 });
     });
 };
 
@@ -15,13 +24,13 @@ module.exports.getUsersId = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (user) res.send({ data: user });
-      else res.status(404).send({ message: 'Пользователь не найден' });
+      else res.status(ERROR_404).send({ message: MESSAGE_404 });
     })
     .catch((err) => {
       if (err.name !== 'SomeErrorName') {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
+        res.status(ERROR_400).send({ message: MESSAGE_400 });
       } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
+        res.status(ERROR_500).send({ message: MESSAGE_500 });
       }
     });
 };
@@ -35,9 +44,9 @@ module.exports.createUser = (req, res) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name !== 'SomeErrorName') {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
+        res.status(ERROR_400).send({ message: MESSAGE_400 });
       } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
+        res.status(ERROR_500).send({ message: MESSAGE_500 });
       }
     });
 };
@@ -52,14 +61,14 @@ module.exports.changeUser = (req, res) => {
     .then((user) => {
       if (user) res.send({ name, about });
       else {
-        res.status(404).send({ message: 'Пользователь не найден' });
+        res.status(MESSAGE_404).send({ message: MESSAGE_404 });
       }
     })
     .catch((err) => {
       if ((err.name !== 'SomeErrorName') || (err.name !== 'CastError')) {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+        res.status(ERROR_400).send({ message: MESSAGE_400 });
       } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
+        res.status(ERROR_500).send({ message: MESSAGE_500 });
       }
     });
 };
@@ -73,14 +82,14 @@ module.exports.changeAvatar = (req, res) => {
     .then((user) => {
       if (user) res.send({ avatar });
       else {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара' });
+        res.status(ERROR_400).send({ message: MESSAGE_400 });
       }
     })
     .catch((err) => {
       if (err.name === 'SomeErrorName') {
-        res.status(404).send({ message: 'Пользователь не найден' });
+        res.status(MESSAGE_404).send({ message: MESSAGE_404 });
       } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
+        res.status(ERROR_500).send({ message: MESSAGE_500 });
       }
     });
 };

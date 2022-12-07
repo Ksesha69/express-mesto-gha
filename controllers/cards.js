@@ -1,5 +1,14 @@
 const Card = require('../models/card');
 
+const {
+  ERROR_500,
+  ERROR_404,
+  ERROR_400,
+  MESSAGE_500,
+  MESSAGE_404,
+  MESSAGE_400,
+} = require('../errors/errors');
+
 module.exports.getCards = (req, res) => {
   Card.find({})
     .populate(['owner', 'likes'])
@@ -8,7 +17,7 @@ module.exports.getCards = (req, res) => {
     })
     .catch((e) => {
       console.log(e);
-      return res.status(500).json({ message: 'Произошла ошибка' });
+      return res.status(ERROR_500).json({ message: MESSAGE_500 });
     });
 };
 
@@ -21,9 +30,9 @@ module.exports.createCard = (req, res) => {
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name !== 'CastError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании карточки' });
+        res.status(ERROR_400).send({ message: ERROR_400 });
       } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
+        res.status(ERROR_500).send({ message: MESSAGE_500 });
       }
     });
 };
@@ -32,11 +41,11 @@ module.exports.deleteCard = (req, res) => {
   Card.findByIdAndDelete({ _id: req.params.cardId })
     .then((card) => {
       if (card) res.send({ message: 'Карточка удалена' });
-      else res.status(404).send({ message: 'Карточка с указанным _id не найдена в БД' });
+      else res.status(ERROR_404).send({ message: MESSAGE_404 });
     })
     .catch((e) => {
       console.log(e);
-      return res.status(400).json({ message: 'Карточка с указанным _id не найдена.' });
+      return res.status(ERROR_400).json({ message: MESSAGE_400 });
     });
 };
 
@@ -49,13 +58,13 @@ module.exports.likeCard = (req, res) => {
     .populate(['owner', 'likes'])
     .then((card) => {
       if (card) res.send(card);
-      else res.status(404).send({ message: 'Переданы некорректные данные для постановки/снятия лайка' });
+      else res.status(ERROR_404).send({ message: MESSAGE_404 });
     })
     .catch((err) => {
       if (err.name !== 'CastError') {
-        res.status(400).send({ message: 'Передан несуществующий _id карточки' });
+        res.status(ERROR_400).send({ message: MESSAGE_400 });
       } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
+        res.status(ERROR_500).send({ message: MESSAGE_500 });
       }
     });
 };
@@ -69,13 +78,13 @@ module.exports.dislikeCard = (req, res) => {
     .populate(['owner', 'likes'])
     .then((card) => {
       if (card) res.send(card);
-      else res.status(404).send({ message: 'Переданы некорректные данные для постановки/снятия лайка' });
+      else res.status(ERROR_404).send({ message: MESSAGE_404 });
     })
     .catch((err) => {
       if (err.name !== 'CastError') {
-        res.status(400).send({ message: 'Передан несуществующий _id карточки' });
+        res.status(ERROR_400).send({ message: MESSAGE_400 });
       } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
+        res.status(ERROR_500).send({ message: MESSAGE_500 });
       }
     });
 };
