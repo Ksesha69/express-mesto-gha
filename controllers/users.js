@@ -31,7 +31,7 @@ module.exports.createUser = (req, res) => {
   })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
+      if (err.name !== 'SomeErrorName') {
         res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
       } else {
         res.status(500).send({ message: 'Ошибка по умолчанию' });
@@ -52,7 +52,7 @@ module.exports.changeUser = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
+      if (err.name !== 'SomeErrorName') {
         res.status(404).send({ message: 'Пользователь не найден' });
       } else {
         res.status(500).send({ message: 'Ошибка по умолчанию' });

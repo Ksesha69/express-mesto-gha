@@ -19,7 +19,7 @@ module.exports.createCard = (req, res) => {
   })
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
+      if (err.name !== 'SomeErrorName') {
         res.status(400).send({ message: 'Переданы некорректные данные при создании карточки' });
       } else {
         res.status(500).send({ message: 'Ошибка по умолчанию' });
@@ -49,7 +49,7 @@ module.exports.likeCard = (req, res) => {
       else res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятия лайка' });
     })
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
+      if (err.name !== 'SomeErrorName') {
         res.status(404).send({ message: 'Передан несуществующий _id карточки' });
       } else {
         res.status(500).send({ message: 'Ошибка по умолчанию' });
@@ -68,7 +68,7 @@ module.exports.dislikeCard = (req, res) => {
       else res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятия лайка' });
     })
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
+      if (err.name !== 'SomeErrorName') {
         res.status(404).send({ message: 'Передан несуществующий _id карточки' });
       } else {
         res.status(500).send({ message: 'Ошибка по умолчанию' });
