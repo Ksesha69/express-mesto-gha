@@ -3,6 +3,10 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const routerUser = require('./routes/users');
 const routerCards = require('./routes/cards');
+const {
+  ERROR_404,
+  MESSAGE_404,
+} = require('./errors/errors');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -21,7 +25,7 @@ app.use('/users', routerUser);
 app.use('/cards', routerCards);
 
 app.use('*', (req, res, next) => {
-  res.status(404).send({ message: 'Страница не найдена' });
+  res.status(ERROR_404).send({ message: MESSAGE_404 });
   next();
 });
 
