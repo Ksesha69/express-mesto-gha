@@ -1,6 +1,7 @@
 const User = require('../models/user');
 
 const {
+  OK_200,
   ERROR_500,
   ERROR_404,
   ERROR_400,
@@ -41,9 +42,9 @@ module.exports.createUser = (req, res) => {
     about: req.body.about,
     avatar: req.body.avatar,
   })
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(OK_200).send(user))
     .catch((err) => {
-      if (err.name !== 'CastError') {
+      if (err.name !== 'ValidationError') {
         res.status(ERROR_400).send({ message: MESSAGE_400 });
       } else {
         res.status(ERROR_500).send({ message: MESSAGE_500 });
@@ -82,12 +83,12 @@ module.exports.changeAvatar = (req, res) => {
     .then((user) => {
       if (user) res.send({ avatar });
       else {
-        res.status(ERROR_400).send({ message: MESSAGE_400 });
+        res.status(ERROR_404).send({ message: MESSAGE_404 });
       }
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(MESSAGE_404).send({ message: MESSAGE_404 });
+      if ((err.name !== 'CastError') || (err.name !== 'ValidationError')) {
+        res.status(ERROR_400).send({ message: MESSAGE_400 });
       } else {
         res.status(ERROR_500).send({ message: MESSAGE_500 });
       }

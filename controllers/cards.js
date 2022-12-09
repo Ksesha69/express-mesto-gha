@@ -1,6 +1,7 @@
 const Card = require('../models/card');
 
 const {
+  OK_200,
   ERROR_500,
   ERROR_404,
   ERROR_400,
@@ -27,9 +28,9 @@ module.exports.createCard = (req, res) => {
     link: req.body.link,
     owner: req.user._id,
   })
-    .then((card) => res.status(200).send(card))
+    .then((card) => res.status(OK_200).send(card))
     .catch((err) => {
-      if (err.name !== 'CastError') {
+      if (err.name !== 'ValidationError') {
         res.status(ERROR_400).send({ message: ERROR_400 });
       } else {
         res.status(ERROR_500).send({ message: MESSAGE_500 });
@@ -43,9 +44,12 @@ module.exports.deleteCard = (req, res) => {
       if (card) res.send({ message: 'Карточка удалена' });
       else res.status(ERROR_404).send({ message: MESSAGE_404 });
     })
-    .catch((e) => {
-      console.log(e);
-      return res.status(ERROR_400).json({ message: MESSAGE_400 });
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ERROR_400).send({ message: MESSAGE_400 });
+      } else {
+        res.status(ERROR_500).send({ message: MESSAGE_500 });
+      }
     });
 };
 
