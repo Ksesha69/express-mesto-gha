@@ -44,7 +44,7 @@ module.exports.createUser = (req, res) => {
   })
     .then((user) => res.status(OK_200).send(user))
     .catch((err) => {
-      if (err.name !== 'ValidationError') {
+      if (err.name === 'ValidationError') {
         res.status(ERROR_400).send({ message: MESSAGE_400 });
       } else {
         res.status(ERROR_500).send({ message: MESSAGE_500 });
@@ -66,7 +66,7 @@ module.exports.changeUser = (req, res) => {
       }
     })
     .catch((err) => {
-      if ((err.name !== 'CastError') || (err.name !== 'ValidationError')) {
+      if ((err.name === 'CastError') || (err.name === 'ValidationError')) {
         res.status(ERROR_400).send({ message: MESSAGE_400 });
       } else {
         res.status(ERROR_500).send({ message: MESSAGE_500 });
@@ -87,7 +87,7 @@ module.exports.changeAvatar = (req, res) => {
       }
     })
     .catch((err) => {
-      if ((err.name !== 'CastError') || (err.name !== 'ValidationError')) {
+      if ((err.name === 'CastError') || (err.name === 'ValidationError')) {
         res.status(ERROR_400).send({ message: MESSAGE_400 });
       } else {
         res.status(ERROR_500).send({ message: MESSAGE_500 });
