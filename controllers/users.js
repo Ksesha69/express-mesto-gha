@@ -61,8 +61,8 @@ module.exports.createUser = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_400).send({ message: MESSAGE_400 });
-      } else {
-        res.status(ERROR_500).send({ message: MESSAGE_500 });
+      } if (err.code === 11000) {
+        return next(new ConflictError(`Данный ${email} уже существует`));
       }
     });
 };
@@ -120,7 +120,7 @@ module.exports.login = (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      res.status(ERROR_401).send({ message: 'Неправильная почта или пароль' });
+      res.status(ERROR_400).send({ message: 'Неправильная почта или пароль' });
     });
 };
 
@@ -131,6 +131,6 @@ module.exports.getUserInfo = (req, res) => {
     else res.status(ERROR_404).send({ message: 'Пользователь с данным ID не найден' });;
   })
     .catch((err) => {
-      res.status(401).send({ message: err.message });
+      res.status(401).send({ message: '' });
     });
 };
