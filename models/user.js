@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const isEmail = require('validator/lib/isEmail');
 const bcrypt = require('bcryptjs');
 
+const validate = /^(https|http)?:\/\/(www.)?[^-_.\s](\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})?(:\d+)?(.+[#a-zA-Z/:0-9]{1,})?\.(.+[#a-zA-Z/:0-9]{1,})?$/i;
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -18,6 +20,7 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    match: validate,
   },
   email: {
     type: String,
@@ -29,7 +32,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     select: false,
-  }
+  },
 });
 
 userSchema.statics.findUserByCredentials = function (email, password) {

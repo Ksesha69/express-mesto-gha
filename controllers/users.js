@@ -1,57 +1,49 @@
-const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const User = require('../models/user');
+const BadRequest = require('../errors/badRequest');
+const UnauthorizedError = require('../errors/unauthorizedError');
+const NotFound = require('../errors/notFound');
+const ConflictError = require('../errors/conflictError');
 
-const {
-  OK_200,
-  ERROR_500,
-  ERROR_404,
-  ERROR_401,
-  ERROR_400,
-  MESSAGE_500,
-  MESSAGE_404,
-  MESSAGE_400,
-} = require('../errors/errors');
-
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
       res.send(users);
     })
-    .catch((e) => {
-      console.log(e);
-      return res.status(ERROR_500).json({ message: MESSAGE_500 });
+    .catch((err) => {
+      console.log(err);
+      return next(err);
     });
 };
 
-module.exports.getUsersId = (req, res) => {
+module.exports.getUsersId = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (user) res.send({ data: user });
-      else res.status(ERROR_404).send({ message: MESSAGE_404 });
+      return next(new NotFound('Карточка или пользователь не найден'));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_400).send({ message: MESSAGE_400 });
-      } else {
-        res.status(ERROR_500).send({ message: MESSAGE_500 });
+        return next(new BadRequest('Переданы некорректные данные в методы создания карточки, пользователя, обновления аватара пользователя или профиля'));
       }
+      return next(err);
     });
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
-    name, about, avatar, email
+    name, about, avatar, email,
   } = req.body;
   bcrypt.hash(req.body.password, 10)
-  .then((hash) => User.create({
-    name,
-    about,
-    avatar,
-    email,
-    password: hash,
-  }))
-    .then((user) => res.status(OK_200).send({
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
+    .then((user) => res.status(200).send({
       name: user.name,
       about: user.about,
       avatar: user.avatar,
@@ -60,14 +52,16 @@ module.exports.createUser = (req, res) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_400).send({ message: MESSAGE_400 });
-      } else {
-        res.status(ERROR_500).send({ message: MESSAGE_500 });
+        return next(new BadRequest('Переданы некорректные данные в методы создания карточки, пользователя, обновления аватара пользователя или профиля'));
       }
+      if (err.code === 11000) {
+        return next(new ConflictError(`Данный ${email} уже существует`));
+      }
+      return next(err);
     });
 };
 
-module.exports.changeUser = (req, res) => {
+module.exports.changeUser = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -77,19 +71,18 @@ module.exports.changeUser = (req, res) => {
     .then((user) => {
       if (user) res.send({ name, about });
       else {
-        res.status(MESSAGE_404).send({ message: MESSAGE_404 });
+        next(new NotFound('Карточка или пользователь не найден'));
       }
     })
     .catch((err) => {
-      if ((err.name === 'CastError') || (err.name === 'ValidationError')) {
-        res.status(ERROR_400).send({ message: MESSAGE_400 });
-      } else {
-        res.status(ERROR_500).send({ message: MESSAGE_500 });
+      if ((err.name === 'ValidationError')) {
+        return next(new BadRequest('Переданы некорректные данные в методы создания карточки, пользователя, обновления аватара пользователя или профиля'));
       }
+      return next(err);
     });
 };
 
-module.exports.changeAvatar = (req, res) => {
+module.exports.changeAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -98,39 +91,41 @@ module.exports.changeAvatar = (req, res) => {
     .then((user) => {
       if (user) res.send({ avatar });
       else {
-        res.status(ERROR_404).send({ message: MESSAGE_404 });
+        next(new NotFound('Карточка или пользователь не найден'));
       }
     })
     .catch((err) => {
-      if ((err.name === 'CastError') || (err.name === 'ValidationError')) {
-        res.status(ERROR_400).send({ message: MESSAGE_400 });
-      } else {
-        res.status(ERROR_500).send({ message: MESSAGE_500 });
+      if ((err.name === 'ValidationError')) {
+        return next(new BadRequest('Переданы некорректные данные в методы создания карточки, пользователя, обновления аватара пользователя или профиля'));
       }
+      return next(err);
     });
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
       res.send({
-  token: jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d'})
-});
+        token: jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' }),
+      });
     })
     .catch((err) => {
       console.log(err);
-      res.status(ERROR_400).send({ message: 'Неправильная почта или пароль' });
+      return next(new BadRequest('Неправильная почта или пароль'));
     });
 };
 
-module.exports.getUserInfo = (req, res) => {
+module.exports.getUserInfo = (req, res, next) => {
   User.findById(req.user)
     .then((user) => {
-    if (user) res.send({ user });
-    else res.status(ERROR_404).send({ message: 'Пользователь с данным ID не найден' });;
-  })
+      if (user) res.send({ user });
+      else {
+        next(new NotFound('Карточка или пользователь не найден'));
+      }
+    })
     .catch((err) => {
-      res.status(401).send({ message: '' });
+      console.log(err);
+      return next(new UnauthorizedError('Неправильная почта или пароль'));
     });
 };

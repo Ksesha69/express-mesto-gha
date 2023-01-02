@@ -3,10 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const routerUser = require('./routes/users');
 const routerCards = require('./routes/cards');
-const {
-  ERROR_404,
-  MESSAGE_404,
-} = require('./errors/errors');
+const NotFound = require('./errors/notFound');
 const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
 
@@ -22,10 +19,7 @@ app.post('/signup', createUser);
 app.use('/users', auth, routerUser);
 app.use('/cards', auth, routerCards);
 
-app.use('*', (req, res, next) => {
-  res.status(ERROR_404).send({ message: MESSAGE_404 });
-  next();
-});
+app.use('*', NotFound);
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 app.listen(PORT, () => {
