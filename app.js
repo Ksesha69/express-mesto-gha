@@ -1,8 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const routerUser = require('./routes/users');
-const routerCards = require('./routes/cards');
+const { celebrate, Joi } = require('celebrate');
+
 const NotFound = require('./errors/notFound');
 const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
@@ -13,11 +13,26 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().email(),
+    password: Joi.string().required().min(8),
+  }),
+}), login);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string(),
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8),
+  }),
+}), createUser);
 
-app.use('/users', auth, routerUser);
-app.use('/cards', auth, routerCards);
+app.use('/users', require('./routes/users'));
+app.use('/cards', require('./routes/cards'));
+
+app.use('/', auth);
 
 app.use('*', NotFound);
 

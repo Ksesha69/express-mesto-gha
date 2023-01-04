@@ -2,9 +2,9 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const BadRequest = require('../errors/badRequest');
-const UnauthorizedError = require('../errors/unauthorizedError');
 const NotFound = require('../errors/notFound');
 const ConflictError = require('../errors/conflictError');
+const { OK_200 } = require('../errors/success');
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -21,7 +21,9 @@ module.exports.getUsersId = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (user) res.send({ data: user });
-      return next(new NotFound('Карточка или пользователь не найден'));
+      else {
+        next(new NotFound('Карточка или пользователь не найден'));
+      }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -43,7 +45,7 @@ module.exports.createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then((user) => res.status(200).send({
+    .then((user) => res.status(OK_200).send({
       name: user.name,
       about: user.about,
       avatar: user.avatar,
@@ -112,20 +114,18 @@ module.exports.login = (req, res, next) => {
     })
     .catch((err) => {
       console.log(err);
-      return next(new BadRequest('Неправильная почта или пароль'));
+      next(err);
     });
 };
 
 module.exports.getUserInfo = (req, res, next) => {
   User.findById(req.user)
     .then((user) => {
-      if (user) res.send({ user });
-      else {
-        next(new NotFound('Карточка или пользователь не найден'));
+      if (!user) {
+        next(new NotFound('Пользователь по указанному id не найден.'));
+        return;
       }
+      res.send(user);
     })
-    .catch((err) => {
-      console.log(err);
-      return next(new UnauthorizedError('Неправильная почта или пароль'));
-    });
+    .catch(next);
 };
