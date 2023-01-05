@@ -4,7 +4,7 @@ const User = require('../models/user');
 const BadRequest = require('../errors/badRequest');
 const NotFound = require('../errors/notFound');
 const ConflictError = require('../errors/conflictError');
-const { OK_200 } = require('../errors/success');
+const { OK_200 } = require('../utils/constans');
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -71,7 +71,7 @@ module.exports.changeUser = (req, res, next) => {
     { new: true, runValidators: true },
   )
     .then((user) => {
-      if (user) res.send({ name, about });
+      if (user) res.send(user);
       else {
         next(new NotFound('Карточка или пользователь не найден'));
       }
@@ -89,9 +89,10 @@ module.exports.changeAvatar = (req, res, next) => {
   User.findByIdAndUpdate(
     req.user._id,
     { avatar },
+    { new: true, runValidators: true },
   )
     .then((user) => {
-      if (user) res.send({ avatar });
+      if (user) res.send(user);
       else {
         next(new NotFound('Карточка или пользователь не найден'));
       }
